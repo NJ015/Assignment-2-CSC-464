@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Next Word Prediction</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            margin-top: 50px;
+        }
+        input {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .result {
+            margin-top: 20px;
+            font-size: 18px;
+            color: green;
+        }
+        ul{
+            width: fit-content;
+            justify-self: center;
+        }
+        .nb{
+            width: 40px;
+        }
+    </style>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h1>Next Word Prediction</h1>
+
+    <form method="POST">
+        <input type="text" name="text" placeholder="Enter two words" required>
+        <button type="submit">Predict Next Word</button>
+    </form>
+
+    {% if prediction %}
+        <p><strong>Predicted Next Word:</strong> {{ prediction }}</p>
+        <h3>Other Predictions:</h3>
+        <ul>
+            {% for word, prob in alternatives %}
+                <li>{{ word }} ({{ prob * 100 }}%)</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    <hr>
+
+    <h2>Generate Multiple Words</h2>
+    <form id="generate-form">
+        <input type="text" id="gen-text" placeholder="Enter two words" required>
+        <input class="nb" type="number" id="num-words" placeholder="3" min="1" max="15" value="3">
+        <button type="submit">Generate</button>
+    </form>
+
+    <h3>Generated Text:</h3>
+    <p id="generated-output"></p>
+
+    <script>
+        $("#generate-form").submit(function(event) {
+            event.preventDefault();
+            let text = $("#gen-text").val();
+            let numWords = $("#num-words").val();
+            
+            $.post("/generate", {text: text, num_words: numWords}, function(data) {
+                $("#generated-output").text(data.generated_text);
+            }).fail(function(error) {
+                alert(error.responseJSON.error);
+            });
+        });
+    </script>
+</body>
+</html>
